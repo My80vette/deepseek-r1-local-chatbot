@@ -1,6 +1,6 @@
 import streamlit as st
 import bitsandbytes
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import torch
 
 #load the model(Do this outside the streamlit app to avoid reloading on every action)
@@ -23,7 +23,8 @@ def load_model():
     #This is where we are actually loading in the model based on the parameters we set above, if we want another model, we make the changes in model_id
     #device_map will try to spread over multiple GPUs if available, cool.
     #load_in_8bit = True is CRITICAL! it loads the model in "8-bit quantization" which reduces the memory load for GPUs with limited VRAM
-    model = AutoModelForCausalLM.from_pretrained(model_id, device_map = "auto", load_in_8bit = True)
+    quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+    model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", quantization_config=quantization_config)
     model.eval()
     #this function returns the loaded tokenizer, the model, and the device the model is loaded on
     return tokenizer, model, device
